@@ -42,4 +42,5 @@ yarn-error.log
 # Project specific
 *.pcap
 *.pcapng
-data/
+# data/  <-- 注释掉这一行，允许 data 目录被提交
+
