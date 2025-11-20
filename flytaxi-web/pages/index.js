@@ -22,7 +22,7 @@ const HK_BOUNDS = {
 export default function Home() {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyBuLw6igtDbLECoBfh7XEnsXGkoXwmK2jU"
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
   });
 
   const [map, setMap] = useState(null);

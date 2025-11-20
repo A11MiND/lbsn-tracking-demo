@@ -16,8 +16,8 @@ SCAN_LOCATIONS = [
     {"name": "Sha Tin", "lat": 22.3820, "lng": 114.1920}
 ]
 
-# 文件保存路径
-DATA_FILE = "data/driver_history.csv"
+# 文件保存路径 (使用相对路径，确保在 GitHub Actions 环境中正确)
+DATA_FILE = "lbsn_tracking_project/data/driver_history.csv"
 
 # API 配置
 URL = "https://api.flytaxiapp.com/v6/gps/get_user_nearby_drivers"
@@ -37,8 +37,9 @@ BASE_PAYLOAD = {
 
 def run_scan():
     # 确保 data 目录存在
-    if not os.path.exists("data"):
-        os.makedirs("data")
+    data_dir = os.path.dirname(DATA_FILE)
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
         
     # 如果文件不存在，写入表头
     file_exists = os.path.isfile(DATA_FILE)
