@@ -1,57 +1,59 @@
-# LBSN Tracking Project - COMP5355
+# LBSN Tracking & Privacy Analysis Project (COMP5355)
 
-## Project Overview
+## 🚨 Project Overview
+This project demonstrates a significant privacy leakage in a popular Location-Based Social Network (LBSN) app used for taxi hailing in Hong Kong. 
 
-This project aims to analyze the traffic of Location-Based Social Network (LBSN) apps to identify privacy leakages (plaintext HTTP location data) and demonstrate user tracking capabilities.
+By analyzing the app's network traffic, we identified an API endpoint that leaks **precise GPS coordinates** of drivers without adequate authentication or encryption. We exploited this vulnerability to implement a **"Scan One City"** attack, allowing us to track drivers' movements across Hong Kong in real-time.
 
-## Project Structure
+## 🛠 Methodology
 
-- `pcap_files/`: Store your captured traffic files here.
-- `scripts/`: Python scripts for analysis and scanning.
-- `docs/`: Documentation and findings.
+### 1. Vulnerability Discovery
+- **Tools**: Mitmproxy, Genymotion Android Emulator.
+- **Finding**: The API endpoint `/v6/gps/get_user_nearby_drivers` accepts arbitrary latitude/longitude parameters and returns a list of nearby drivers with high-precision coordinates, direction, and speed.
+- **Exploit**: By modifying the request parameters (Location Spoofing), an attacker can query any location in the world.
 
-## Step 1: App Selection
+### 2. Automated City-wide Scanning
+- We developed a Python script (`scripts/scan_for_github.py`) that systematically queries 6 major districts in Hong Kong:
+  - PolyU / Hung Hom
+  - Mong Kok
+  - Tsim Sha Tsui
+  - Central
+  - Causeway Bay
+  - Sha Tin
+- This simulates a "God View" surveillance system.
 
-Select 3 apps that use location features. Avoid apps mentioned in course slides.
+### 3. Persistent Data Collection (GitHub Actions)
+- To fulfill the requirement of **"Profiling Users"**, we utilized **GitHub Actions** as a cloud-based scanner.
+- **Workflow**: The scanner runs automatically **every 30 minutes**.
+- **Storage**: Data is appended to `data/driver_history.csv` and committed back to the repository.
+- This allows for long-term data collection without maintaining a local server.
 
-**Categories to explore:**
+### 4. Privacy Profiling (Clustering Analysis)
+- Although the API does not return a unique User ID, we employ **Spatiotemporal Clustering**.
+- By analyzing the `driver_history.csv` data, we can identify "stationary points" (Speed = 0) that appear frequently at specific times (e.g., late night).
+- **Goal**: Infer sensitive locations such as **home addresses** or **regular parking spots** based on these clusters.
 
-- **Dating Apps**: Often broadcast precise distance or location.
-- **Local Social/Chat**: "People Nearby" features.
-- **Niche Booking Apps**: Local delivery or taxi apps might have weaker security than global giants like Uber.
+## 📂 Project Structure
 
-## Step 2: Traffic Capture Setup
+```
+.
+├── .github/workflows/      # CI/CD configuration for automated scanning
+├── data/                   # Collected driver location data (CSV)
+├── scripts/
+│   ├── scan_for_github.py  # Main scanning script (City-wide sampling)
+│   ├── analyze_tracks.py   # Analysis script for clustering & profiling
+└── README.md
+```
 
-### Option A: Android Emulator (Easier)
+## 🚀 How to Analyze the Data
 
-1. Install **Android Studio** or **Genymotion**.
-2. Configure the emulator to route traffic through your host machine.
-3. Run **Wireshark** on your host machine, listening on the virtual network adapter.
-
-### Option B: Physical Device (Real World)
-
-1. Set up a **Mobile Hotspot** on your laptop.
-2. Connect your phone to the hotspot.
-3. Run **Wireshark** on the laptop, listening on the hotspot interface.
-
-## Step 3: Analysis
-
-1. Start capturing in Wireshark.
-2. Open the target app and perform location-based actions (refresh "nearby", book a ride).
-3. Stop capture and save as `.pcap`.
-4. Run the analysis script:
-
+1. **Wait for Data**: The GitHub Action collects data every 30 minutes. Let it run for a few days.
+2. **Download Data**: Pull the latest `data/driver_history.csv` from the repository.
+3. **Run Analysis**:
    ```bash
-   python scripts/analyze_pcap.py pcap_files/your_capture.pcap
+   python scripts/analyze_tracks.py
    ```
+   This script will output the top suspected "Home Locations" based on the collected data.
 
-## Step 4: Modification & Tracking
-
-If you find an app sending coordinates (e.g., `lat=22.31&lon=114.16`) in HTTP:
-
-1. **Verify**: Use a proxy tool like **MITMProxy** or **Burp Suite** to intercept the request, change the coordinates to a different city, and see if the app returns data for that new location.
-2. **Scan**: Use the `scanner_template.py` to automate requests over a grid (e.g., covering Hong Kong) to map out users.
-
-## Disclaimer
-
-This project is for educational purposes only (COMP5355). Do not use these techniques to track real users without consent outside of the scope of this coursework.
+## ⚠️ Disclaimer
+This project is for **educational and research purposes only** (COMP5355 Coursework). All data collected is anonymized where possible. Do not use these techniques to track real individuals for malicious purposes.
