@@ -1,0 +1,40 @@
+name: Driver Profiling Scanner
+
+on:
+  schedule:
+    # 每 30 分钟运行一次 (UTC 时间)
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # 允许手动点击运行
+
+permissions:
+  contents: write
+
+jobs:
+  scan-and-commit:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install dependencies
+        run: |
+          pip install requests
+          
+      - name: Run Scanner
+        run: |
+          python lbsn_tracking_project/scripts/scan_for_github.py
+          
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add lbsn_tracking_project/data/driver_history.csv
+          # 只有当有变化时才提交
+          git commit -m "Auto-update driver data" || exit 0
+          git push
