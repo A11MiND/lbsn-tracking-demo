@@ -64,6 +64,9 @@ def run_scan():
                 all_drivers.extend(drivers)
             else:
                 print(f"    -> [!] API Error: {resp.status_code}")
+                if resp.status_code == 401:
+                    print("    -> [!!!] TOKEN EXPIRED. Please capture a new token and update the script.")
+                    sys.exit(1) # 强制退出，触发 GitHub Action 报警
         except Exception as e:
             print(f"    -> [!] Failed: {e}")
             
