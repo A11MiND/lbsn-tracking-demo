@@ -59,7 +59,15 @@ def run_scan():
             resp = requests.post(URL, headers=HEADERS, data=payload, timeout=10)
             if resp.status_code == 200:
                 data = resp.json()
-                drivers = data.get("data", {}).get("driver_list", [])
+                
+                # 兼容性处理：有时候 API 返回的 data 是空列表 [] 而不是字典 {}
+                raw_data = data.get("data")
+                if isinstance(raw_data, dict):
+                    drivers = raw_data.get("driver_list", [])
+                else:
+                    # 如果 data 是列表（通常是空的）或者 None，说明没有司机
+                    drivers = []
+                    
                 print(f"    -> Found {len(drivers)} drivers")
                 all_drivers.extend(drivers)
             else:
