@@ -55,5 +55,31 @@ By analyzing the app's network traffic, we identified an API endpoint that leaks
    ```
    This script will output the top suspected "Home Locations" based on the collected data.
 
+## 🔄 How to Update Expired Token
+
+The `access_token` used in the scanning script may expire periodically (e.g., every 24 hours). If the GitHub Action fails (shows a red cross), follow these steps to update it:
+
+1. **Capture New Token**:
+   - Open **Genymotion** and **Mitmproxy**.
+   - Refresh the FlyTaxi app to trigger a new request.
+   - In Mitmproxy (`http://127.0.0.1:8081`), find the request to `api.flytaxiapp.com`.
+   - Copy the value of `access_token` from the request body.
+
+2. **Update Script**:
+   - Open `lbsn_tracking_project/scripts/scan_for_github.py`.
+   - Replace the value of `access_token` in the `BASE_PAYLOAD` dictionary with the new token.
+
+3. **Push Changes**:
+   - Run the following commands in your terminal to update the script on GitHub:
+     ```bash
+     # First, pull the latest data to avoid conflicts
+     git pull --rebase origin main
+     
+     # Then commit and push the new token
+     git add lbsn_tracking_project/scripts/scan_for_github.py
+     git commit -m "Update expired access token"
+     git push origin main
+     ```
+
 ## ⚠️ Disclaimer
 This project is for **educational and research purposes only** (COMP5355 Coursework). All data collected is anonymized where possible. Do not use these techniques to track real individuals for malicious purposes.
