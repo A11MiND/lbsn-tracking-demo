@@ -27,7 +27,7 @@ HEADERS = {
     "Cookie": "PHPSESSID=3clulv7sodl7v0t050duag5miu; AWSALB=HxU4n3wk1vr6PjKNKPzEXaAXYvvIW6klxr2j7LsgjcaJLz9lPKrWflE+Ige0/1xNChdv+Djb4XD9EUx/UkvqPIhfXy3zEs92jD7XwiCxNImwlHaFtBZXcFRNrATJ"
 }
 BASE_PAYLOAD = {
-    "access_token": "RzViMXl2RmFuSlV1TUluRFRBTUFuNlE1VytGcEY2OFFOSTNrWXZlMHk4OD0",
+    "access_token": "RzViMXl2RmFuSlV1TUluRFRBTUFuenRqMGdKZmxJTnJQeEEzUFNNR3JzWT0",
     "uid": "4342015",
     "ct_list": "1",
     "app_list": "32,33,37",

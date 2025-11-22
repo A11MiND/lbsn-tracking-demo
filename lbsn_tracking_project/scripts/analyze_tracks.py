@@ -1,8 +1,10 @@
 import sqlite3
 import pandas as pd
+import os
 from math import radians, cos, sin, asin, sqrt
 
-DB_FILE = "tracking_data.db"
+# Path to the CSV file synced from GitHub
+CSV_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "driver_history.csv")
 
 def haversine(lon1, lat1, lon2, lat2):
     """
@@ -18,19 +20,23 @@ def haversine(lon1, lat1, lon2, lat2):
     return c * r * 1000 # meters
 
 def analyze():
-    if not os.path.exists(DB_FILE):
-        print(f"Database {DB_FILE} not found. Run tracker_daemon.py first.")
+    if not os.path.exists(CSV_FILE):
+        print(f"Data file {CSV_FILE} not found. Please sync from GitHub first.")
         return
 
-    conn = sqlite3.connect(DB_FILE)
-    df = pd.read_sql_query("SELECT * FROM drivers", conn)
-    conn.close()
+    print(f"[*] Loading data from {CSV_FILE}...")
+    df = pd.read_csv(CSV_FILE)
     
     print(f"[*] Loaded {len(df)} records.")
     
-    # 1. 找出"静止"的车辆 (Speed = 0)
-    # 注意：有些 API 返回的 speed 是字符串 "0"，有些是数字 0
-    stationary = df[df['speed'].astype(str) == "0"]
+    # Debug: Print columns and first row
+    # print(f"Columns: {df.columns.tolist()}")
+    # print(df.head(1))
+
+    # 1. 找出"静止"的车辆 (Speed approx 0)
+    # Convert speed to float to handle strings and numbers, and check if close to 0
+    df['speed'] = pd.to_numeric(df['speed'], errors='coerce').fillna(0)
+    stationary = df[df['speed'] < 1.0] # Consider speed < 1 km/h (or m/s) as stationary
     print(f"[*] Found {len(stationary)} stationary records.")
     
     # 2. 聚类分析 (简单的网格聚类)
